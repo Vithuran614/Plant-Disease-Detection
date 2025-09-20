@@ -78,3 +78,4 @@ GitHub: https://github.com/Vithuran614
 
 LinkedIn: https://www.linkedin.com/in/vithuran-kailash-673924367/
 
+![Screenshot of the web application](images/app_screenshot.jpg)
