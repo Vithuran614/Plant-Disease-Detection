@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Predictor</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        .result-box { margin-top: 20px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        #loading { display: none; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Plant Disease Predictor</h1>
+    <p>Upload a picture of a plant leaf to get a diagnosis.</p>
+    
+    <form id="upload-form">
+        <input type="file" id="image-upload" accept="image/*" required>
+        <button type="submit">Predict</button>
+    </form>
+    
+    <div id="loading">Predicting...</div>
+    
+    <div class="result-box" id="result">
+        </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const fileInput = document.getElementById('image-upload');
+        const loading = document.getElementById('loading');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            loading.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    resultDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h2>Prediction Result:</h2>
+                        <p><strong>Predicted Class:</strong> ${data.predicted_class}</p>
+                        <p><strong>Confidence:</strong> ${data.confidence.toFixed(4)}</p>
+                    `;
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color:red;">Error during prediction. Please try again.</p>`;
+                console.error('Fetch error:', error);
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
